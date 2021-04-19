@@ -1,4 +1,5 @@
 var issueContainerEl = document.querySelector("#issues-container");
+var limitWarningEl = document.querySelector("#limit-warning");
 
 var getReposIssues = function(repo) {
     var apiUrl = "https://api.github.com/repos/" + repo + "/issues?direction=asc";
@@ -9,6 +10,11 @@ var getReposIssues = function(repo) {
             response.json().then(function(data) {
                 // pass response data to dom function
                 displayIssues(data);
+
+                // check if api has paginated issues
+                if (response.headers.get("link")) {
+                    displayWarning(repo);
+                }
             });
         } else {
             alert("there was a problem with your request!");
@@ -53,4 +59,17 @@ var displayIssues = function(issues) {
     }
 }
 
-getReposIssues("NathanaelWhite/git-it-done");
+var displayWarning = function(repo) {
+    // add text to warning container
+    limitWarningEl.textContent = "To see more then 30 issues, visit ";
+
+    var linkEl = document.createElement("a");
+    linkEl.textContent = "See More Issues on GitHub.com";
+    linkEl.setAttribute("href", "http://github.com/" + repo + "/issues");
+    linkEl.setAttribute("target", "_blank");
+
+    // append to marning container
+    limitWarningEl.appendChild(linkEl);
+};
+
+getReposIssues("facebook/react");
